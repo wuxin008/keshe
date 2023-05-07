@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, redirect, jsonify
-import json
 import os
-import struct
+import sys
+
+WIN = sys.platform.startswith('win')
+if WIN:
+    prefix = 'sqlite:///'
+else:
+    prefix = 'sqlite:////'
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
+app.config['SQLALCHEMY_DATABASE_URI'] = prefix + os.path.join(os.path.dirname(app.root_path), os.getenv('DATABASE_FILE', 'data.db'))
 app.config['UPLOAD_FOLDER'] = 'upload/'
 chosen = []
 
