@@ -39,6 +39,7 @@
             <div>
                 <label>选择：</label>
                 <select class='filelist' style="width:60%">
+                    <!-- jinja模板生成列表 -->
                     {% for file in files %}
                         <option>{{ file }}</option>
                     {% endfor %}
@@ -47,7 +48,7 @@
             <input id='import' type="file" name="file" style="display:none" onchange="upload()"/>
         </div>
         <div class="box">
-            <label class="btn show">数据查询</label>
+            <label class="btn show" onclick="window.location.href='/query'">数据查询</label>
         </div>
         <div class="box">
             <label class="btn analysis">数据分析</label>
@@ -57,6 +58,7 @@
         </div>
     </div>
     <script>
+        <!-- 上传文件的函数 -->
         function upload() {
             var files = $('#import').prop('files');
             console.log(files[0].name)
@@ -64,6 +66,7 @@
             filedata.append('file_data', files[0]);
             filedata.append('file_name', files[0].name)
 
+            // 利用ajax异步上传至服务器
             $.ajax({
                 type: 'POST',
                 url: "/upload",
@@ -80,10 +83,12 @@
                 }
             });
         }
+        // 监听选择的文件是否改变
         $('.filelist').on('change', function() {
             filename = $('.filelist option:selected').text()
             console.log(filename)
 
+            // 利用ajax异步将所选择的文件名上传至后端
             $.ajax({
                 url: '/changeChosen',
                 type: 'POST',

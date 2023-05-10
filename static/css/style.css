@@ -321,3 +321,14 @@ ul {
     list-style-type: none;
     overflow: auto;
 }
+
+.datashow {
+    position: absolute;
+    margin: auto;
+    top: 2rem;
+    left: 0;
+    right: 0;
+    width: 15rem;
+    height: 1rem;
+    color: #ffffff;
+}
