@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>系统主页</title>
+    <meta charset= 'utf-8' />
+    <script src="{{ url_for('static', filename = 'js/flexible.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'js/echarts.min.js') }}"></script>
+    <link rel="stylesheet", href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body style="background: url('../static/images/bg.jpg') repeat-y top center">
+<header>
+    <h1>聚类数据分析</h1>
+    <div class="showTime"></div>
+    <script>
+        var t = null;
+        t = setTimeout(time, 1000);
+
+        function time() {
+            clearTimeout(t);
+            dt = new Date();
+            var y = dt.getFullYear();
+            var mt = dt.getMonth() + 1;
+            var day = dt.getDate();
+            var h = dt.getHours();
+            var m = dt.getMinutes();
+            var s = dt.getSeconds();
+            document.querySelector(".showTime").innerHTML = '当前时间：' + y + "年" + mt + "月" + day + "日-" + h + "时" + m + "分" + s + "秒";
+            t = setTimeout(time, 1000);
+        }
+    </script>
+</header>
+<section style="color: #ffffff;display: flex;justify-content: center;">
+    <div style="left:0; right:0; margin:auto;">
+        {% for items in datas %}
+            <table border = 1 style="overflow:hidden; margin: 0 auto">
+                <tr onclick="toggle(this)">
+                    <th colspan={{ items['data'][0]|length }}>{{ items['title'] }}</th>
+                </tr>
+                {% if items['type'] == 0 %}
+                    {% for line in items['data'] %}
+                        <tr class="show">
+                            {% for unit in line %}
+                                <td>{{ unit }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="show">
+                        <td><img src="{{ url_for('static', filename='images/tmp/' + items['data'])}}" alt="图片不见惹" width="900px"/></td>
+                    </tr>
+                {% endif %}
+            </table>
+        {% endfor%}
+        <script>
+            function toggle(obj) {
+                $(obj).siblings().toggle();
+            }
+        </script>
+    </div>
+</section>
+</body>
+</html>
