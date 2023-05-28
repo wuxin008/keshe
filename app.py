@@ -1,15 +1,9 @@
-import time
 from flask import Flask, render_template, request, redirect, jsonify
-import io
 import os
 import sys
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import missingno
-from collections import Counter
 import scipy.stats as stats
 from sklearn.cluster import KMeans
 from kneed import KneeLocator
@@ -17,7 +11,6 @@ from sklearn.cluster import AgglomerativeClustering
 import scipy.cluster.hierarchy as sch
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import calinski_harabasz_score
-from tabulate import tabulate
 import warnings
 
 warnings.filterwarnings('ignore')
