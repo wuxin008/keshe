@@ -33,7 +33,7 @@ IV = ['Gender', 'Age']
 DV = ['Annual Income (k$)', 'Spending Score (1-100)']
 
 
-def normalize(datas, type, title):
+def normalize(datas, type, title, download=''):
     if type == 0:
         index = datas.index.tolist()
         index.insert(0, ' ')
@@ -43,35 +43,51 @@ def normalize(datas, type, title):
         for i in data:
             i.insert(0, index[id])
             id = id + 1
-        return {'type': type, 'title': title, 'data': data}
+        return {'type': type, 'title': title, 'data': data, 'download': download}
     else:
         data = datas
         return {'type': type, 'title': title, 'data': data}
 
 
-# variable属性的直方图、QQ图和箱线图
-def diagnostic_plots(df, variable):
+# 直方图
+def histogram_plot(df, variable):
     global fignum
     fignum = fignum + 1
-    plt.figure(fignum, figsize=(16, 4))
+    plt.figure(fignum)
 
-    # Histogram
-    plt.subplot(1, 3, 1)
-    fig1 = sns.histplot(df[variable], bins=30)
+    sns.histplot(df[variable], bins=30)
     plt.title('Histogram')
-    print(type(plt))
+    plt.savefig('static/images/tmp/' + variable + '_histogram_plot.png')
 
-    # Q-Q plot
-    plt.subplot(1, 3, 2)
-    stats.probplot(df[variable], dist="norm", plot=plt)
-    plt.ylabel('Variable quantiles')
+# 箱线图
+def box_plot(df, variable):
+    global fignum
+    fignum = fignum + 1
+    plt.figure(fignum)
 
     # Boxplot
-    plt.subplot(1, 3, 3)
     sns.boxplot(y=df[variable])
     plt.title('Boxplot')
 
-    plt.savefig('static/images/tmp/' + variable + '_diagnostic_plots.png')
+    plt.savefig('static/images/tmp/' + variable + '_box_plot.png')
+
+# 直方图和箱线图
+def var_plot(df, variable):
+    global fignum
+    fignum = fignum + 1
+    plt.figure(fignum)
+
+    # 直方图
+    plt.subplot(1, 2, 1)
+    sns.histplot(df[variable], bins=30)
+    plt.title('Histogram')
+
+    # 箱线图
+    plt.subplot(1, 2, 2);
+    sns.boxplot(y=df[variable])
+    plt.title('Boxplot')
+
+    plt.savefig('static/images/tmp/' + variable + '_var_plot.png')
 
 # attr属性的种类数柱形图
 def Attribute_Count(df, attr):
@@ -81,7 +97,7 @@ def Attribute_Count(df, attr):
     attr_count = df[attr].value_counts(dropna=False)
     sns.barplot(x=attr_count.index, y=attr_count.values, alpha=0.8)
     plt.title('Bar graph showing the value counts of the column - ' + attr)
-    plt.ylabel('Number of Occurrences', fontsize=12)
+    plt.ylabel('Number of Occurrences', fontsize=8)
     plt.xlabel(attr, fontsize=12)
     plt.savefig('static/images/tmp/' + attr + '_Count.png')
 
@@ -96,6 +112,39 @@ def IVandDV(df, IV, DV):
     plt.xlabel(IV, fontsize=12)
 
     plt.savefig('static/images/tmp/' + IV + 'and' + DV + '_Count.png')
+
+def ByGender(df, DV):
+    DV_len = len(DV)
+    global fignum
+    fignum = fignum + 1
+    plt.figure(fignum)
+
+    plt.figure(fignum)
+    id = 1
+    for dv in DV:
+        attr_score = df[['Gender', dv]].groupby('Gender', as_index=False).mean()
+        plt.subplot(1, DV_len, id)
+        sns.barplot(x=attr_score['Gender'], y=attr_score[dv], alpha=0.8)
+        plt.title(dv + ' by Gender', fontsize=10)
+        plt.ylabel('Mean ' + dv, fontsize=8)
+        plt.xlabel('Gender', fontsize=8)
+        id += 1
+    plt.savefig('static/images/tmp/Gender_and_DV_Count.png')
+
+def ByAge(df, DV):
+    global fignum
+    fignum = fignum + 1
+    plt.figure(fignum)
+
+    attr_score = df[['Age', DV]].groupby('Age', as_index=False).mean()
+    sns.barplot(x=attr_score['Age'], y=attr_score[DV], alpha=0.8)
+    plt.title(DV + ' by Age')
+    plt.ylabel('Mean ' + DV, fontsize=12)
+    plt.xlabel('Age', fontsize=12)
+    x_min, x_max = min(attr_score['Age']), max(attr_score['Age'])
+    # print(x_min, x_max)
+    plt.xticks(range(0, x_max - x_min, 5))
+    plt.savefig('static/images/tmp/Age_and_' + DV + '_Count.png')
 
 def Scatterplot(data, x, y, hue):
     global fignum
@@ -211,8 +260,11 @@ def joinStr(attr, type):
 
 def cluster(df, attrs, datas):
     X = df[attrs].values
-    print(X)
-    print(type(X))
+
+    if not hasattr(cluster, 'id'):
+        cluster.id = 0
+    print(cluster.id)
+    cluster.id += 1
 
     ### 使用肘部法则（elbow method）来寻找最优的聚类数
     wcss = []
@@ -284,8 +336,9 @@ def cluster(df, attrs, datas):
     calinski_harabasz_score_kmeans = round(calinski_harabasz_score(X, y_kmeans), 2)
     cluster_index = pd.DataFrame({'index': [silhouette_score_kmeans, calinski_harabasz_score_kmeans]},
                                  index=['Silhouette Score', 'Calinski Harabasz Score'])
+    cluster_index.to_csv('static/result/kmeans_index' + str(cluster.id) + '.csv', header=False)
     # print(cluster_index)
-    datas.append(normalize(cluster_index, type=0, title='kmeans聚类指数'))
+    datas.append(normalize(cluster_index, type=0, title='kmeans聚类指数', download='kmeans_index' + str(cluster.id)))
 
     ## 用于绘制层次聚类模型的树状图（dendrogram），以展示数据集中数据点之间的相似性关系
     fignum = fignum + 1
@@ -330,13 +383,14 @@ def cluster(df, attrs, datas):
     calinski_harabasz_score_hc = round(calinski_harabasz_score(X, y_hc), 2)
     cluster_index = pd.DataFrame({'index': [silhouette_score_hc, calinski_harabasz_score_hc]},
                                  index=['Silhouette Score', 'Calinski Harabasz Score'])
-    # print(cluster_index)
-    datas.append(normalize(cluster_index, type=0, title='层次聚类指数'))
+    cluster_index.to_csv('static/result/dendrogram_index' + str(cluster.id) + '.csv', header=False)
+    datas.append(normalize(cluster_index, type=0, title='层次聚类指数', download='dendrogram_index' + str(cluster.id)))
 
     table = pd.DataFrame({'Silhouette Score': [silhouette_score_kmeans, silhouette_score_hc],
                           'Calinski Harabasz Score': [calinski_harabasz_score_kmeans, calinski_harabasz_score_hc]},
                          index=['K - Means clustering', 'Hierarchial clustering'])
-    datas.append(normalize(table, type=0, title='聚类指数'))
+    table.to_csv('static/result/total_index'+ str(cluster.id) + '.csv' , header=False)
+    datas.append(normalize(table, type=0, title='聚类指数', download='total_index' + str(cluster.id)))
 
 
 # 主页面函数
@@ -362,6 +416,12 @@ def upload():
 
         return jsonify({'text': 'Yes'})
 
+
+@app.route('/download', methods=['GET', 'POST'])
+def download():
+    if request.method == 'POST':
+
+        return jsonify({})
 # 用于改变选择的文件名
 @app.route('/changeChosen', methods = ['GET', 'POST'])
 def changeChosen():
@@ -395,19 +455,26 @@ def statistics_analysis():
 
     # 数据基本情况
     base_info = df.describe()
-    datas.append(normalize(base_info, type=0, title='基本信息'))
+    base_info.to_csv('static/result/base_info.csv', header=False)
+    datas.append(normalize(base_info, type=0, title='基本信息', download='base_info'))
 
     for v in IV + DV:
         if df[v].dtype != object:
-            diagnostic_plots(df, v)
-            datas.append(normalize(v + '_diagnostic_plots.png', type=1, title= v + '标准的样本展示'))
-    for v in IV + DV:
-        Attribute_Count(df, v)
-        datas.append(normalize(v + '_Count.png', type = 1, title = v + ' Count'))
-    for iv in IV:
-        for dv in DV:
-            IVandDV(df, iv, dv)
-            datas.append(normalize(iv + 'and' + dv + '_Count.png', type = 1, title = iv + ' and ' + dv + ' Count'))
+            # histogram_plot(df, v)
+            # box_plot(df, v)
+            # datas.append(normalize(v + '_histogram_plot.png', type=1, title= v + '直方图展示'))
+            # datas.append(normalize(v + '_box_plot.png', type=1, title= v + '箱线图展示'))
+            var_plot(df, v)
+            datas.append(normalize(v + '_var_plot.png', type=1, title= v + ' 直方图和箱线图展示'))
+    # for v in IV + DV:
+    #     Attribute_Count(df, v)
+    #     datas.append(normalize(v + '_Count.png', type = 1, title = v + ' Count'))
+    ByGender(df, DV)
+    datas.append(normalize('Gender_and_DV_Count.png', type=1, title='attribute Count by Gender'))
+    for dv in DV:
+        ByAge(df, dv)
+        datas.append(normalize('Age_and_' + dv + '_Count.png', type=1,title=dv + ' Count by Age'));
+
     for dv in DV:
         Scatterplot(df, IV[1], dv, IV[0])
         datas.append(normalize(IV[1] + '_' + dv + '_' + IV[0] + '.png', type = 1, title = "scatter about " + IV[0] + " and " + dv))
@@ -426,6 +493,7 @@ def cluster_analysis():
     datas = []  # 记录所有要传输的数据
 
     # cluster(df, ['Age',], datas)
+    cluster.id = 0
     cluster(df, ['Age', 'Spending Score (1-100)'], datas)
     cluster(df, ['Annual Income (k$)', 'Spending Score (1-100)'], datas)
     cluster(df, ['Age', 'Annual Income (k$)'], datas)

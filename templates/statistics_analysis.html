@@ -9,6 +9,7 @@
     <link rel="stylesheet", href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body style="background: url('../static/images/bg.jpg') repeat-y top center">
+<p id="datas" style="display: none">{{ datas }}</p>
 <header>
     <h1>统计数据分析</h1>
     <div class="showTime"></div>
@@ -33,29 +34,84 @@
 <section style="color: #ffffff;display: flex;justify-content: center;">
     <div style="left:0; right:0; margin:auto;">
         {% for items in datas %}
-            <table border = 1 style="overflow:hidden; margin: 0 auto">
-                <tr onclick="toggle(this)">
-                    <th colspan={{ items['data'][0]|length }}>{{ items['title'] }}</th>
+            <table border = 1 style="overflow:hidden; margin: 0 auto;width:800px">
+                <tr style="width:800px">
+                    <th colspan={{ items['data'][0]|length }} style="position:relative" style="width:800px" align="center">
+                        <p onclick="toggle(this)" style="position:relative;font-size:0.35rem">{{ items['title'] }}</p>
+                        {% if items['type'] == 0 %}
+{#                            <label style="position:absolute;top:0; right:0;font-size:0.1rem" onclick="download(this, {{ items }})">下载数据</label>#}
+                            <a style="text-decoration: none; outline: none; color: #ffffff; position:absolute; top:0; right:0; font-size: 0.1rem", href = "{{ url_for('static', filename='result/' + items['download'] + '.csv') }}", download = "{{ items['download'] + '.csv' }}">下载数据</a>
+                        {% endif %}
+                    </th>
                 </tr>
                 {% if items['type'] == 0 %}
                     {% for line in items['data'] %}
-                        <tr class="show">
+                        <tr class="show" style="position:relative;width:800px" align="center">
                             {% for unit in line %}
                                 <td>{{ unit }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
                 {% else %}
-                    <tr class="show">
-                        <td><img src="{{ url_for('static', filename='images/tmp/' + items['data'])}}" alt="图片不见惹" width="900px"/></td>
+                    <tr class="show" style="width:800px" align="center">
+                        <td><img style="max-width:100%;" src="{{ url_for('static', filename='images/tmp/' + items['data'])}}" alt="图片不见惹" width="800rem" /></td>
                     </tr>
                 {% endif %}
             </table>
         {% endfor%}
         <script>
             function toggle(obj) {
-                $(obj).siblings().toggle();
+                $(obj).parent().parent().siblings().toggle();
             }
+            function download(obj, items) {
+                filename = items['download'] + ".csv"
+                if ('download' in document.createElement('a')) {
+                    let link = document.createElement('a');
+                    link.download = filename;
+                    link.style.display = 'none';
+                    link.href = URL.createObjectURL(['123'], {type: 'csv'})
+
+                    if ('download' in document.createElement('a')) {
+
+                    }
+                }
+                $.ajax({
+                    url: items['download'],
+                    method: "post",
+                    success: function (result, state, xhr) {//3个参数
+                        //result:请求到的结果数据
+                        //state:请求状态（success）
+                        //xhr:XMLHttpRequest对象
+
+                        // 从Response Headers中获取fileName
+                        let fileName = xhr.getResponseHeader('Content-Disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
+                        //获取下载文件的类型
+                        let type = xhr.getResponseHeader("content-type")
+                        //结果数据类型处理
+                        let blob = new Blob([result], { type: type })
+
+                        //对于<a>标签，只有 Firefox 和 Chrome（内核）支持 download 属性
+                        //IE10以上支持blob，但是依然不支持download
+                        if ('download' in document.createElement('a')) {//支持a标签download的浏览器
+                            //通过创建a标签实现
+                            let link = document.createElement("a");
+                            //文件名
+                            link.download = fileName;
+                            link.style.display = "none"
+                            link.href = URL.createObjectURL(blob);
+                            document.body.appendChild(link);
+                            link.click();//执行下载
+                            URL.revokeObjectURL(link.href);//释放url
+                            document.body.removeChild(link);//释放标签
+                        } else {//不支持
+                            if (window.navigator.msSaveOrOpenBlob) {
+                                window.navigator.msSaveOrOpenBlob(blob, fileName)
+                            }
+                        }
+                    },
+                })
+            }
+
         </script>
     </div>
 </section>
