@@ -8,6 +8,13 @@
     <script src="{{ url_for('static', filename = 'js/echarts.min.js') }}"></script>
     <link rel="stylesheet", href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
+<script>
+    alert('数据清洗已完成！\n原始数据个数：' + {{ clean_result[0] }} + '\n' +
+    '重复值个数：' + {{ clean_result[1] }} + '\n' +
+    '异常值个数：' + {{ clean_result[2] }} + '\n' +
+    '空白值个数：' + {{ clean_result[3] }} + '\n' +
+    '清洗后数据个数：' + {{ clean_result[4] }})
+</script>
 <body style="background: url('../static/images/bg.jpg') repeat-y top center">
 <p id="datas" style="display: none">{{ datas }}</p>
 <header>

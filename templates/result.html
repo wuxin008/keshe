@@ -4,10 +4,11 @@
     <meta charset="utf-8"/>
     <title>结果分析</title>
     <script src="{{ url_for('static', filename = 'js/flexible.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'js/echarts.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'js/echarts.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/style.css') }}" type="text/css"/>
 </head>
 <body>
+<p id="echartsDatas" style="display:none">{{ echartsDatas }}</p>
 <!-- 页面头部 -->
 <header>
     <h1>数据可视化-ECharts</h1>
@@ -33,21 +34,34 @@
 <!-- 页面主体 -->
 <section class="mainbox">
     <div class="column">
-        <div class="panel bar">
-            <h2>柱形图-就业形势</h2>
-            <div class="chart"></div>
-            <div class="panel-footer"></div>
-        </div>
-        <div class="panel line">
-            <h2>折线图-人员变化
-                <a href="javascript:;">2020</a>
-                <a href="javascript:;">2021</a>
+        <div class="panel pie">
+            <h2>饼图-分组计数
+                <a href="javascript:;" style="color: rgba(255, 255, 255, 1)">age</a>
+                <a href="javascript:;" style="color: rgba(255, 255, 255, .3)">income</a>
+                <a href="javascript:;" style="color: rgba(255, 255, 255, .3)">score</a>
+                <style>
+                    h2 a {
+                        padding: 0;
+                        margin: 0;
+                        font-size: 1px;
+                    }
+                </style>
             </h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
         </div>
-        <div class="panel pie">
-            <h2>饼图-就业形势</h2>
+        <div class="panel mix1">
+            <h2>变化图-Income and Score
+                <a href="javascript:;" style="color: rgba(255, 255, 255, 1)">keams</a>
+                <a href="javascript:;" style="color: rgba(255, 255, 255, .3)">层次</a></h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+        <div class="panel mix3">
+            <h2>变化图-Age and Income
+                <a href="javascript:;" style="color: rgba(255, 255, 255, 1)">keams</a>
+                <a href="javascript:;" style="color: rgba(255, 255, 255, .1)">层次</a>
+            </h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
         </div>
@@ -56,14 +70,14 @@
         <div class="no">
             <div class="no-hd">
                 <ul>
-                    <li>123456</li>
-                    <li>123456</li>
+                    <li>{{ echartsDatas['title'][0] }}</li>
+                    <li>{{ echartsDatas['title'][1] }}</li>
                 </ul>
             </div>
             <div class="no-bd">
                 <ul>
-                    <li>前端需求人数</li>
-                    <li>市场供应人数</li>
+                    <li>清洗前数据个数</li>
+                    <li>清洗后数据个数</li>
                 </ul>
             </div>
         </div>
@@ -75,18 +89,22 @@
         </div>
     </div>
     <div class="column">
-        <div class="panel bar2">
-            <h2>柱形图-就业形势</h2>
+        <div class="panel bubble">
+            <h2>气泡图-综合分布</h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
         </div>
-        <div class="panel line2">
-            <h2>折线图-就业形势</h2>
+        <div class="panel mix2">
+            <h2>变化图-Income and Score
+                <a href="javascript:;" style="color: rgba(255, 255, 255, 1)">keams</a>
+                <a href="javascript:;" style="color: rgba(255, 255, 255, .3)">层次</a></h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
         </div>
-        <div class="panel pie2">
-            <h2>饼图-就业形势</h2>
+        <div class="panel bar">
+            <h2>柱形图-聚类指数
+                <a href="javascript:;">切换</a>
+            </h2>
             <div class="chart"></div>
             <div class="panel-footer"></div>
         </div>
@@ -94,6 +112,6 @@
 </section>
 <script src="{{ url_for('static', filename = 'js/jquery.js') }}"></script>
 <script src="{{ url_for('static', filename = 'js/china.js') }}"></script>
-<script src="{{ url_for('static', filename = 'js/index.js') }}"></script>
+<script src="{{ url_for('static', filename = 'js/index_new.js') }}"></script>
 </body>
 </html>
