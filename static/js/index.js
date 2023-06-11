@@ -824,7 +824,8 @@ setInterval(function () {
                 lineStyle: {
                     color: 'rgba(255, 255, 255, .1)'
                 }
-            }
+            },
+            scale: true,
         },
         yAxis: {
             name: 'Annual Income',
@@ -841,7 +842,8 @@ setInterval(function () {
                 lineStyle: {
                     color: 'rgba(255, 255, 255, .1)'
                 }
-            }
+            },
+            scale: true,
         },
         legend: {
             textStyle: {
