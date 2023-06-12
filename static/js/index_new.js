@@ -189,7 +189,7 @@ setInterval(function () {
             }
         },
         yAxis: {
-            name: echartsDatas['mix2']['id'][1],
+            name: echartsDatas['mix1']['id'][1],
             show: true,
             nameLocation: 'center',
             nameTextStyle: {
