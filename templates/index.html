@@ -62,7 +62,7 @@
         <!-- 上传文件的函数 -->
         function upload() {
             var files = $('#import').prop('files');
-            // console.log(files[0].name)
+
             var filedata = new FormData();
             filedata.append('file_data', files[0]);
             filedata.append('file_name', files[0].name)
@@ -77,10 +77,10 @@
                 contentType: false,
                 success: function (response) {
                     $('.filelist').append('<option>' + files[0].name + '</option>')
-                    // console.log(response)
+
                 },
                 error: function() {
-                    // console.log('fail');
+
                 }
             });
         }
@@ -99,39 +99,6 @@
             })
         })
     </script>
-    {#    <script>#}
-    {#        function upload(){#}
-    {#            var files = $('#import').prop('files');#}
-    {##}
-    {#            console.log(file)#}
-    {#            var reader = new FileReader();#}
-    {##}
-    {#            reader.addEventListener("load", function () {#}
-    {##}
-    {#                var text = String.fromCharCode.apply(null, new Uint8Array(reader.result));#}
-    {##}
-    {#                $.ajax({#}
-    {#                    url: '/upload',#}
-    {#                    method: 'POST',#}
-    {#                    dataType: 'json',#}
-    {#                    data: {#}
-    {#                        'filename': file['name'],#}
-    {#                        'filedata': text#}
-    {#                    },#}
-    {#                    success: function(response) {#}
-    {#                        console.log(response)#}
-    {#                    },#}
-    {#                    error: function(response) {#}
-    {#                        console.log('fail')#}
-    {#                    }#}
-    {#                })#}
-    {#            }, false);#}
-    {##}
-    {#            if (file) {#}
-    {#                reader.readAsArrayBuffer(file);#}
-    {#            }#}
-    {#        }#}
-    {#    </script>#}
 </section>
 </body>
 </html>

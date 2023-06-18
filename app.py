@@ -37,13 +37,12 @@ def DataClean(df):
 
     # 清除重复值
     df.drop_duplicates(inplace=True)
-    duplicates = df.shape[0] - old_df_num
+    duplicates = old_df_num - df.shape[0]
 
     # 清除异常值
     # IQR
     abnormal = 0
     for i in ['Age', 'Annual Income (k$)', 'Spending Score (1-100)']:
-        print(df[i])
         Q1 = np.percentile(df[i], 25, interpolation='midpoint')
         Q3 = np.percentile(df[i], 75, interpolation='midpoint')
         IQR = Q3 - Q1
@@ -53,7 +52,7 @@ def DataClean(df):
         # Below Lower bound
         lower = df[i] <= (Q1 - 1.5 * IQR)
         abnormal = abnormal | upper | lower
-    abnormals = sum(abnormal)
+    abnormals = -sum(abnormal)
     df = df[~abnormal]
 
     # 清除空值
@@ -119,30 +118,6 @@ def var_plot(df, variable):
 
     plt.savefig('static/images/tmp/' + variable + '_var_plot.png')
 
-# # attr属性的种类数柱形图
-# def Attribute_Count(df, attr):
-#     global fignum
-#     fignum = fignum + 1
-#     plt.figure(fignum)
-#     attr_count = df[attr].value_counts(dropna=False)
-#     sns.barplot(x=attr_count.index, y=attr_count.values, alpha=0.8)
-#     plt.title('Bar graph showing the value counts of the column - ' + attr)
-#     plt.ylabel('Number of Occurrences', fontsize=8)
-#     plt.xlabel(attr, fontsize=12)
-#     plt.savefig('static/images/tmp/' + attr + '_Count.png')
-#
-# def IVandDV(df, IV, DV):
-#     global fignum
-#     fignum = fignum + 1
-#     plt.figure(fignum)
-#     attr_score = df[[IV, DV]].groupby(IV, as_index=False).mean()
-#     sns.barplot(x = attr_score[IV], y = attr_score[DV], alpha=0.8)
-#     plt.title(DV + ' by ' + IV)
-#     plt.ylabel('Mean ' + DV, fontsize=12)
-#     plt.xlabel(IV, fontsize=12)
-#
-#     plt.savefig('static/images/tmp/' + IV + 'and' + DV + '_Count.png')
-
 def ByGender(df, DV):
     DV_len = len(DV)
     global fignum
@@ -172,7 +147,7 @@ def ByAge(df, DV):
     plt.ylabel('Mean ' + DV, fontsize=12)
     plt.xlabel('Age', fontsize=12)
     x_min, x_max = min(attr_score['Age']), max(attr_score['Age'])
-    # print(x_min, x_max)
+
     plt.xticks(range(0, x_max - x_min, 5))
     plt.savefig('static/images/tmp/Age_and_' + DV + '_Count.png')
 
@@ -183,96 +158,6 @@ def Scatterplot(data, x, y, hue):
     sns.scatterplot(data=data, x=x, y=y, hue=hue)
 
     plt.savefig('static/images/tmp/' + x + '_' + y + '_' + hue + '.png')
-
-# def cluster(df, attr1, attr2, datas):
-#     X = df[[attr1, attr2]].values
-#
-#     ### 使用肘部法则（elbow method）来寻找最优的聚类数
-#     wcss = []
-#     for i in range(1, 11):
-#         kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
-#         kmeans.fit(X)
-#         wcss.append(kmeans.inertia_)
-#
-#     ## 确定肘部
-#     kneedle = KneeLocator(range(1, 11), wcss, curve='convex', direction='decreasing', online='True')
-#     # print(kneedle.knee)
-#
-#     global fignum
-#     fignum = fignum + 1
-#     plt.figure(fignum)
-#     plt.plot(range(1, 11), wcss, marker='o')
-#     plt.title(attr1 + '-' + attr2 + ' Elbow figure')
-#     plt.xlabel('Number of clusters')
-#     plt.ylabel('WCSS')
-#     plt.scatter(x=kneedle.knee, y=kneedle.knee_y, c='b', s=200, marker='^', alpha=1)
-#     plt.annotate(text='Knee Point', xy=(kneedle.knee + 0.2, kneedle.knee_y), fontsize=10)
-#     plt.savefig('static/images/tmp/' + attr1 + '_and_' + attr2 + '_Elbow.png')
-#     datas.append(normalize(attr1 + '_and_' + attr2 + '_Elbow.png', type=1, title=attr1 + '-' + attr2 + ' Elbow figure'))
-#
-#     ### Training k-means
-#     kmeans = KMeans(n_clusters=kneedle.knee, init='k-means++', random_state=42)
-#     y_kmeans = kmeans.fit_predict(X)
-#
-#     fignum = fignum + 1
-#     plt.figure(fignum, figsize=(7, 5))
-#     plt.scatter(X[y_kmeans == 0, 0], X[y_kmeans == 0, 1], s=100, c='red', label='High Age - Medium Score')
-#     plt.scatter(X[y_kmeans == 1, 0], X[y_kmeans == 1, 1], s=100, c='blue', label='Low Score customers')
-#     plt.scatter(X[y_kmeans == 2, 0], X[y_kmeans == 2, 1], s=100, c='green', label='Low Age - High Score')
-#     plt.scatter(X[y_kmeans == 3, 0], X[y_kmeans == 3, 1], s=100, c='cyan', label='Low Age - Medium Score')
-#     plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=300, c='yellow', label='Centroids')
-#     plt.title('Clusters of customers')
-#     plt.xlabel('Age')
-#     plt.ylabel('Spending Score (1 - 100)')
-#     plt.legend()
-#     plt.savefig('static/images/tmp/' + attr1 + '_and_' + attr2 + '_Cluster(kmeans).png')
-#     datas.append(normalize(attr1 + '_and_' + attr2 + '_Cluster(kmeans).png', type=1, title=attr1 + ' and ' + attr2 + ' kmeans-cluster result'))
-#
-#     ### 计算聚类指数
-#     ##传入 KMeans 聚类模型以及数据集 X 和模型生成的聚类标签 y_kmeans 来
-#     ##计算 Silhouette 指数和 Calinski Harabasz 指数
-#     ##Silhouette 指数是用于衡量聚类结果内部的紧密度和聚类之间的分离度
-#     ##Calinski Harabasz 指数通过计算聚类内部方差和聚类之间的方差比值来评估聚类模型的质量
-#     silhouette_score_kmeans = round(silhouette_score(X, y_kmeans), 2)
-#     calinski_harabasz_score_kmeans = round(calinski_harabasz_score(X, y_kmeans), 2)
-#     cluster_index = pd.DataFrame({'index': [silhouette_score_kmeans, calinski_harabasz_score_kmeans]}, index=['Silhouette Score', 'Calinski Harabasz Score'])
-#     # print(cluster_index)
-#     datas.append(normalize(cluster_index, type=0, title='kmeans聚类指数'))
-#
-#     ## 用于绘制层次聚类模型的树状图（dendrogram），以展示数据集中数据点之间的相似性关系
-#     fignum = fignum + 1
-#     plt.figure(fignum)
-#     dendrogram = sch.dendrogram(sch.linkage(X, method='ward'))
-#     plt.title('Dendrogram')
-#     plt.xlabel('Customers')
-#     plt.ylabel('Euclidean distances')
-#     plt.savefig('static/images/tmp/' + attr1 + '_and_' + attr2 + '_dendrogram(hierarchical).png')
-#     datas.append(normalize(attr1 + '_and_' + attr2 + '_dendrogram(hierarchical).png', type=1, title=attr1 + ' and ' + attr2 + ' hierarchical-cluster dendrogram'))
-#
-#     ##创建并训练一个层次聚类模型，并使用该模型对数据集 X 进行聚类预测
-#     hc = AgglomerativeClustering(n_clusters=2, affinity='euclidean', linkage='ward')
-#     y_hc = hc.fit_predict(X)
-#
-#     ## 可视化
-#     fignum = fignum + 1
-#     plt.figure(fignum, figsize=(7, 5))
-#     plt.scatter(X[y_hc == 0, 0], X[y_hc == 0, 1], s=100, c='red', label='Low Spending Score customers')
-#     plt.scatter(X[y_hc == 1, 0], X[y_hc == 1, 1], s=100, c='blue', label='High Spending Score customers')
-#     plt.title('Clusters of customers')
-#     plt.xlabel('Age')
-#     plt.ylabel('Spending Score (1-100)')
-#     plt.savefig('static/images/tmp/' + attr1 + '_and_' + attr2 + '_Cluster(hierarchical).png')
-#     datas.append(normalize(attr1 + '_and_' + attr2 + '_Cluster(hierarchical).png', type=1, title=attr1 + ' and ' + attr2 + 'hierarchical-cluster result'))
-#
-#     ##计算 Silhouette 指数和 Calinski Harabasz 指数
-#     silhouette_score_hc = round(silhouette_score(X, y_hc), 2)
-#     calinski_harabasz_score_hc = round(calinski_harabasz_score(X, y_hc), 2)
-#     cluster_index = pd.DataFrame({'index': [silhouette_score_hc, calinski_harabasz_score_hc]},index=['Silhouette Score', 'Calinski Harabasz Score'])
-#     # print(cluster_index)
-#     datas.append(normalize(cluster_index, type=0, title='层次聚类指数'))
-#
-#     table = pd.DataFrame({'Silhouette Score':[silhouette_score_kmeans, silhouette_score_hc], 'Calinski Harabasz Score': [calinski_harabasz_score_kmeans, calinski_harabasz_score_hc]}, index = ['K - Means clustering', 'Hierarchial clustering'])
-#     datas.append(normalize(table, type=0, title='聚类指数'))
 
 def joinStr(attr, type):
     res = ''
@@ -294,7 +179,6 @@ def cluster(df, attrs, datas):
 
     if not hasattr(cluster, 'id'):
         cluster.id = 0
-    print(cluster.id)
     cluster.id += 1
 
     # 使用肘部法则（elbow method）来寻找最优的聚类数
@@ -306,7 +190,6 @@ def cluster(df, attrs, datas):
 
     # 确定肘部
     kneedle = KneeLocator(range(1, 11), wcss, curve='convex', direction='decreasing', online=True)
-    # print(kneedle.knee)
 
     global fignum
     fignum = fignum + 1
@@ -318,8 +201,7 @@ def cluster(df, attrs, datas):
     plt.scatter(x=kneedle.knee, y=kneedle.knee_y, c='b', s=200, marker='^', alpha=1)
     plt.annotate(text='Knee Point', xy=(kneedle.knee + 0.2, kneedle.knee_y), fontsize=10)
     plt.savefig('static/images/tmp/' + joinStr(attrs, 0) + '_Elbow.png')
-    datas.append(
-        normalize(joinStr(attrs, 0) + '_Elbow.png', type=1, title=joinStr(attrs, 1) + ' Elbow figure'))
+    datas.append(normalize(joinStr(attrs, 0) + '_Elbow.png', type=1, title=joinStr(attrs, 1) + ' Elbow figure'))
 
     # Training k-means
     kmeans = KMeans(n_clusters=kneedle.knee if len(attrs) == 2 else 6, init='k-means++', random_state=42)
@@ -331,10 +213,6 @@ def cluster(df, attrs, datas):
     fignum = fignum + 1
     if len(attrs) == 2:
         plt.figure(fignum, figsize=(7, 5))
-        # plt.scatter(X[y_kmeans == 0, 0], X[y_kmeans == 0, 1], s=100, c='red', label='High Age - Medium Score')
-        # plt.scatter(X[y_kmeans == 1, 0], X[y_kmeans == 1, 1], s=100, c='blue', label='Low Score customers')
-        # plt.scatter(X[y_kmeans == 2, 0], X[y_kmeans == 2, 1], s=100, c='green', label='Low Age - High Score')
-        # plt.scatter(X[y_kmeans == 3, 0], X[y_kmeans == 3, 1], s=100, c='cyan', label='Low Age - Medium Score')
         for i in range(kneedle.knee):
             plt.scatter(X[y_kmeans == i, 0], X[y_kmeans == i, 1], s=100, c=Colors[i], label='class' + str(i))
         plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=300, c='yellow', label='Centroids')
@@ -373,7 +251,7 @@ def cluster(df, attrs, datas):
     cluster_index = pd.DataFrame({'index': [silhouette_score_kmeans, calinski_harabasz_score_kmeans]},
                                  index=['Silhouette Score', 'Calinski Harabasz Score'])
     cluster_index.to_csv('static/result/kmeans_index' + str(cluster.id) + '.csv', header=False)
-    # print(cluster_index)
+
     datas.append(normalize(cluster_index, type=0, title='kmeans聚类指数', download='kmeans_index' + str(cluster.id)))
 
     # 用于绘制层次聚类模型的树状图（dendrogram），以展示数据集中数据点之间的相似性关系
@@ -528,25 +406,18 @@ def upload():
 
         return jsonify({'text': 'Yes'})
 
-@app.route('/download', methods=['GET', 'POST'])
-def download():
-    if request.method == 'POST':
-
-        return jsonify({})
-
 # 用于改变选择的文件名
 @app.route('/changeChosen', methods = ['GET', 'POST'])
 def changeChosen():
     global chosen
     chosen = request.form.get('filename')
-    # print(chosen)
+
     return 'OK'
 
 # 数据查询的页面
 @app.route('/query')
 def query():
     global chosen
-    print(chosen)
     df = pd.read_csv('upload/' + chosen)
     datas = []
     for i in range(df.shape[0]):
@@ -574,15 +445,8 @@ def statistics_analysis():
 
     for v in IV + DV:
         if df[v].dtype != object:
-            # histogram_plot(df, v)
-            # box_plot(df, v)
-            # datas.append(normalize(v + '_histogram_plot.png', type=1, title= v + '直方图展示'))
-            # datas.append(normalize(v + '_box_plot.png', type=1, title= v + '箱线图展示'))
             var_plot(df, v)
             datas.append(normalize(v + '_var_plot.png', type=1, title= v + ' 直方图和箱线图展示'))
-    # for v in IV + DV:
-    #     Attribute_Count(df, v)
-    #     datas.append(normalize(v + '_Count.png', type = 1, title = v + ' Count'))
     ByGender(df, DV)
     datas.append(normalize('Gender_and_DV_Count.png', type=1, title='attribute Count by Gender'))
     for dv in DV:
@@ -595,22 +459,20 @@ def statistics_analysis():
     Scatterplot(df, DV[0], DV[1], IV[0])
     datas.append(normalize(DV[0] + '_' + DV[1] + '_' + IV[0] + '.png', type=1, title="scatter about " + DV[0] + " and " + DV[1]))
 
-    # print('datas', datas)
     return render_template("statistics_analysis.html", datas = datas, clean_result = clean_result)
 
 @app.route('/cluster_analysis')
 def cluster_analysis():
     global chosen
     df = pd.read_csv('upload/' + chosen)
-    df.drop(['CustomerID'], axis = 1, inplace = True)
 
     df_old_num = df.shape[0]
     df, duplicates, abnormals, nones = DataClean(df)
     clean_result = [df_old_num, duplicates, abnormals, nones, df.shape[0]]
+    df.drop(['CustomerID'], axis = 1, inplace = True)
 
     datas = []  # 记录所有要传输的数据
 
-    # cluster(df, ['Age',], datas)
     cluster.id = 0
     cluster(df, ['Age', 'Spending Score (1-100)'], datas)
     cluster(df, ['Annual Income (k$)', 'Spending Score (1-100)'], datas)
@@ -648,22 +510,22 @@ def result():
     bar['axisName'] = ['kmeans', 'Hierarchial']
     bar['name'] = ['Age and Score', 'Income and Score', 'Age and Income']
     bar['title'] = ['Silhouette', 'Calinski-Harabasz']
-    # print(bar['data'])
     echartsDatas['bar'] = bar
 
+    # 变化图1
     mix1 = {'data': [], 'n_clusters': [], 'id': []}
     mix1['data'], mix1['n_clusters'], mix1['id'] = getMixData(df, ['Age', 'Spending Score (1-100)'], 1)
     echartsDatas['mix1'] = mix1
 
+    # 变换图2
     mix2 = {'data': [], 'n_clusters': [], 'id': []}
     mix2['data'], mix2['n_clusters'], mix2['id'] = getMixData(df, ['Annual Income (k$)', 'Spending Score (1-100)'], 2)
     echartsDatas['mix2'] = mix2
 
+    # 变化图3
     mix3 = {'data': [], 'n_clusters': [], 'id': []}
     mix3['data'], mix3['n_clusters'], mix3['id'] = getMixData(df, ['Age', 'Annual Income (k$)'], 3)
     echartsDatas['mix3'] = mix3
-
-    # print(echartsDatas)
 
     return render_template("result.html", echartsDatas = echartsDatas)
 

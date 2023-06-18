@@ -46,7 +46,6 @@
                     <th colspan={{ items['data'][0]|length }} style="position:relative" style="width:800px" align="center">
                         <p onclick="toggle(this)" style="position:relative;font-size:0.35rem">{{ items['title'] }}</p>
                         {% if items['type'] == 0 %}
-{#                            <label style="position:absolute;top:0; right:0;font-size:0.1rem" onclick="download(this, {{ items }})">下载数据</label>#}
                             <a style="text-decoration: none; outline: none; color: #ffffff; position:absolute; top:0; right:0; font-size: 0.1rem", href = "{{ url_for('static', filename='result/' + items['download'] + '.csv') }}", download = "{{ items['download'] + '.csv' }}">下载数据</a>
                         {% endif %}
                     </th>
