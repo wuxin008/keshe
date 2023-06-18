@@ -52,7 +52,7 @@ def DataClean(df):
         # Below Lower bound
         lower = df[i] <= (Q1 - 1.5 * IQR)
         abnormal = abnormal | upper | lower
-    abnormals = -sum(abnormal)
+    abnormals = sum(abnormal)
     df = df[~abnormal]
 
     # 清除空值

@@ -239,7 +239,7 @@ ul {
     animation: rotate2 15s linear infinite;
     opacity: 0.6;
 }
- .map .chart {
+.map .chart {
     position: absolute;
     top : 0;
     left : 0;
@@ -277,11 +277,13 @@ ul {
 
 .center {
     position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    /*margin: auto;*/
+    /*top: 0;*/
+    /*bottom: 0;*/
+    /*left: 0;*/
+    /*right: 0;*/
+    left: 15%;
+    top: 25%;
     width: 17rem;
     height: 6rem;
 }
@@ -292,13 +294,18 @@ ul {
     font-size: .3rem;
     color: #ffffff;
     margin: 0 .3rem;
-    background-color: rgba(78, 101, 217, 0.87);
+    /*background-color: rgba(78, 101, 217, 0.87);*/
     float: left;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 }
 
 .btn {
-    display: inline-block;
-    border: cyan solid;
+    clear: both;
 }
 
 .import {
