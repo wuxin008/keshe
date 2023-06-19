@@ -175,7 +175,7 @@ def joinStr(attr, type):
 
 def cluster(df, attrs, datas):
     X = df[attrs].values
-    Colors = ['red', 'blue', 'green', 'cyan', '#f32f2f', '#32f234']
+    Colors = ['red', 'blue', 'green', 'cyan', 'gray', '#32f234']
 
     if not hasattr(cluster, 'id'):
         cluster.id = 0
@@ -257,7 +257,7 @@ def cluster(df, attrs, datas):
     # 用于绘制层次聚类模型的树状图（dendrogram），以展示数据集中数据点之间的相似性关系
     fignum = fignum + 1
     plt.figure(fignum)
-    sch.dendrogram(sch.linkage(X, method='ward'))
+    dendrogram = sch.dendrogram(sch.linkage(X, method='ward'))
     plt.title('Dendrogram')
     plt.xlabel('Customers')
     plt.ylabel('Euclidean distances')
@@ -266,7 +266,8 @@ def cluster(df, attrs, datas):
                            title=joinStr(attrs, 1) + ' hierarchical-cluster dendrogram'))
 
     # 创建并训练一个层次聚类模型，并使用该模型对数据集 X 进行聚类预测
-    hc = AgglomerativeClustering(n_clusters=kneedle.knee if len(attrs) == 2 else 3, affinity='euclidean', linkage='ward')
+    n_clusters = len(set(dendrogram['leaves_color_list']))
+    hc = AgglomerativeClustering(n_clusters=n_clusters, affinity='euclidean', linkage='ward')
     y_hc = hc.fit_predict(X)
 
     # 层次聚类结果
@@ -276,9 +277,10 @@ def cluster(df, attrs, datas):
     fignum = fignum + 1
     if len(attrs) == 2:
         plt.figure(fignum, figsize=(7, 5))
-        plt.scatter(X[y_hc == 0, 0], X[y_hc == 0, 1], s=100, c='red', label='Low Spending Score customers')
-        plt.scatter(X[y_hc == 1, 0], X[y_hc == 1, 1], s=100, c='blue', label='High Spending Score customers')
+        for i in range(n_clusters):
+            plt.scatter(X[y_hc == i, 0], X[y_hc == i, 1], s=100, c=Colors[i], label='class' + str(i))
         plt.title('Clusters of customers')
+        plt.legend()
         plt.xlabel(attrs[0])
         plt.ylabel(attrs[1])
     elif len(attrs) == 3:
